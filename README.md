@@ -86,7 +86,35 @@ npx tsc --noEmit  # type check
 
 ## Deployment
 
-Vercel, with the project's **Root Directory set to `web`** — the app is not at
-the repository root. Set `NEXT_PUBLIC_SUPABASE_URL` and
-`NEXT_PUBLIC_SUPABASE_ANON_KEY` for all environments, and add
-`https://<your-app>.vercel.app/auth/callback` to the Supabase redirect URLs.
+Repository: <https://github.com/henriquevmac/divisaoDeContas> (private).
+
+On [vercel.com/new](https://vercel.com/new), import the repo and set:
+
+| Setting | Value |
+| --- | --- |
+| **Root Directory** | `web` |
+| Framework Preset | Next.js (detected automatically) |
+| Build / install commands | leave as detected |
+
+**Root Directory is the one that matters** — the Next app lives in `web/`, not
+at the repository root, and Vercel will fail the build without it.
+
+Add both environment variables for Production, Preview and Development, with
+the same values as `web/.env.local`:
+
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
+
+The anon key is safe in the browser — row-level security is what protects the
+data. Never add the `service_role` key: it bypasses RLS entirely.
+
+Then, in Supabase → **Authentication → URL Configuration**:
+
+- Set **Site URL** to `https://<your-app>.vercel.app`
+- Keep **both** of these in Redirect URLs, so sign-in works in either place:
+  - `https://<your-app>.vercel.app/auth/callback`
+  - `http://localhost:3000/auth/callback`
+
+Skip this and the magic link will bounce to localhost from your phone.
