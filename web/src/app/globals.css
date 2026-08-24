@@ -74,6 +74,20 @@ body {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
+
+  /*
+    Browsers paint autofilled fields a fixed pale blue that ignores background
+    colour. The inset shadow is the only way to override it, so the field keeps
+    the app's own surface in both themes.
+  */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--ink);
+    -webkit-box-shadow: 0 0 0 1000px var(--card) inset;
+    caret-color: var(--ink);
+    transition: background-color 5000s ease-in-out 0s;
+  }
 }
 
 @layer components {
