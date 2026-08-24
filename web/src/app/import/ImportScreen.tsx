@@ -6,6 +6,7 @@ import { parseTranscription, TranscriptionParseError } from '@/domain/transcript
 import { parseReceiptFilename } from '@/domain/transcription/filename'
 import { draftItemsFromLines, nextItemKey, type DraftItem } from '@/domain/items'
 import type { TranscriptionTotals } from '@/domain/transcription/types'
+import { TranscriptionGuide } from '@/components/TranscriptionGuide'
 import { VerificationTable } from '@/components/VerificationTable'
 import { Money } from '@/components/Money'
 import { saveReceiptAction } from './actions'
@@ -77,6 +78,8 @@ export function ImportScreen({ people }: { people: PersonRow[] }) {
         {error && (
           <p className="rounded-xl bg-accent-soft p-3 text-sm text-accent">{error}</p>
         )}
+
+        <TranscriptionGuide />
       </main>
     )
   }

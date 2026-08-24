@@ -15,14 +15,16 @@ The app contains no vision model and no LLM API. Transcription happens outside
 it, which keeps importing deterministic, free, and testable
 ([ADR-0001](./docs/adr/0001-csv-transcription-instead-of-in-app-ocr.md)):
 
-1. Photograph the receipt and paste the photo into a Claude conversation, asking
-   for a `;`-delimited CSV with these columns:
+1. Photograph the receipt and paste the photo into a Claude conversation along
+   with the transcription prompt. **The prompt is in the app** — open `/import`
+   and expand *How do I get the CSV?* to copy it.
 
-   ```
-   Categoria;Artigo;Quantidade;Preço unitário;Valor;Desconto;Valor líquido
-   ```
-
-   and a final row `;TOTAL;;;<gross>;<discount>;<net>`.
+   Its canonical text lives in
+   [`web/src/domain/transcription/prompt.ts`](./web/src/domain/transcription/prompt.ts),
+   and `prompt.test.ts` asserts that a CSV shaped the way the prompt asks for is
+   one the parser accepts — so the instruction and the parser cannot drift
+   apart. Change the format in one place and the tests tell you about the
+   other.
 
 2. Save it as `<merchant>_<store>_<DD-MM-YYYY>.csv`, e.g.
    `super_bairro_centro_24-08-2026.csv`. The app reads the merchant, store and date

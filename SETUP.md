@@ -72,10 +72,8 @@ reconciliation banner reading 191,22 €, and 34 editable lines.
 
 ## Everyday use
 
-1. Photograph the receipt and paste it into a Claude conversation, asking for a
-   `;`-delimited CSV with the columns
-   `Categoria;Artigo;Quantidade;Preço unitário;Valor;Desconto;Valor líquido`
-   and a final `;TOTAL;;;<gross>;<discount>;<net>` row.
+1. Photograph the receipt. On `/import`, expand *How do I get the CSV?* and
+   copy the prompt; paste it into a Claude conversation with the photo.
 2. Save it as `<merchant>_<store>_<DD-MM-YYYY>.csv`.
 3. Upload it at `/import`, check the reconciliation banner, save.
 4. Assign items to people, then settle up from `/people`.
