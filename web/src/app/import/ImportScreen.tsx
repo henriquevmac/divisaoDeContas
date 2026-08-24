@@ -51,18 +51,32 @@ export function ImportScreen({ people }: { people: PersonRow[] }) {
 
   if (!items) {
     return (
-      <main className="flex flex-col gap-4 p-6">
-        <h1 className="text-xl font-semibold">Import a receipt</h1>
-        <input
-          type="file"
-          accept=".csv,text/csv"
-          onChange={(event) => {
-            const file = event.target.files?.[0]
-            if (file) void handleFile(file)
-          }}
-          className="rounded-lg border p-3"
-        />
-        {error && <p className="rounded-lg bg-red-50 p-3 text-red-800">{error}</p>}
+      <main className="flex flex-col gap-5 p-4 pb-28">
+        <header>
+          <h1 className="text-2xl font-semibold tracking-tight">Import a receipt</h1>
+          <p className="mt-1 text-sm text-muted">
+            Upload the CSV you got from Claude. Nothing is saved until you have
+            checked it.
+          </p>
+        </header>
+
+        <label className="flex min-h-40 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-rule bg-card p-6 text-center">
+          <span className="font-medium">Choose a CSV file</span>
+          <span className="eyebrow">merchant_store_DD-MM-YYYY.csv</span>
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              if (file) void handleFile(file)
+            }}
+            className="sr-only"
+          />
+        </label>
+
+        {error && (
+          <p className="rounded-xl bg-accent-soft p-3 text-sm text-accent">{error}</p>
+        )}
       </main>
     )
   }
@@ -103,41 +117,46 @@ export function ImportScreen({ people }: { people: PersonRow[] }) {
   }
 
   return (
-    <main className="flex flex-col gap-4 p-4 pb-40">
-      <h1 className="text-xl font-semibold">Verify before saving</h1>
+    <main className="flex flex-col gap-5 p-4 pb-44">
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight">Verify before saving</h1>
+        <p className="mt-1 text-sm text-muted">
+          The transcription can be wrong. Fix anything that looks off.
+        </p>
+      </header>
 
       <section className="grid grid-cols-2 gap-2">
-        <label className="flex flex-col text-sm">
-          Merchant
+        <label className="flex flex-col gap-1">
+          <span className="eyebrow">Merchant</span>
           <input
             value={merchant}
             onChange={(event) => setMerchant(event.target.value)}
-            className="rounded border p-2 text-base"
+            className="min-h-12 rounded-lg border border-rule bg-card p-2 text-base focus:border-ink"
           />
         </label>
-        <label className="flex flex-col text-sm">
-          Store
+        <label className="flex flex-col gap-1">
+          <span className="eyebrow">Store</span>
           <input
             value={store}
             onChange={(event) => setStore(event.target.value)}
-            className="rounded border p-2 text-base"
+            className="min-h-12 rounded-lg border border-rule bg-card p-2 text-base focus:border-ink"
           />
         </label>
-        <label className="flex flex-col text-sm">
-          Date
+        <label className="flex flex-col gap-1">
+          <span className="eyebrow">Date</span>
           <input
             type="date"
             value={purchasedOn}
             onChange={(event) => setPurchasedOn(event.target.value)}
-            className="rounded border p-2 text-base"
+            className="min-h-12 rounded-lg border border-rule bg-card p-2 font-mono text-base focus:border-ink"
           />
         </label>
-        <label className="flex flex-col text-sm">
-          Paid by
+        <label className="flex flex-col gap-1">
+          <span className="eyebrow">Paid by</span>
           <select
             value={payerId}
             onChange={(event) => setPayerId(event.target.value)}
-            className="rounded border p-2 text-base"
+            className="min-h-12 rounded-lg border border-rule bg-card p-2 text-base focus:border-ink"
           >
             {people.map((person) => (
               <option key={person.id} value={person.id}>
@@ -149,7 +168,7 @@ export function ImportScreen({ people }: { people: PersonRow[] }) {
       </section>
 
       {mismatch && (
-        <p className="rounded-lg border-2 border-red-500 bg-red-50 p-3 text-red-900">
+        <p className="rounded-xl border border-accent bg-accent-soft p-3 text-sm text-accent">
           These {items.length} lines sum to <Money value={linesNet} />, but the
           receipt says <Money value={statedNet!} /> — a difference of{' '}
           <Money value={difference!.abs()} />. Check for a dropped or misread
@@ -158,7 +177,7 @@ export function ImportScreen({ people }: { people: PersonRow[] }) {
       )}
 
       {!mismatch && statedNet && (
-        <p className="rounded-lg bg-green-50 p-3 text-green-900">
+        <p className="rounded-xl bg-good-soft p-3 text-sm text-good">
           Reconciled: {items.length} lines sum to <Money value={linesNet} />.
         </p>
       )}
@@ -183,22 +202,26 @@ export function ImportScreen({ people }: { people: PersonRow[] }) {
             },
           ])
         }
-        className="rounded-lg border border-dashed p-3 text-neutral-700"
+        className="min-h-12 rounded-xl border border-dashed border-rule text-muted"
       >
         Add a line
       </button>
 
-      {error && <p className="rounded-lg bg-red-50 p-3 text-red-800">{error}</p>}
+      {error && (
+        <p className="rounded-xl bg-accent-soft p-3 text-sm text-accent">{error}</p>
+      )}
 
-      <div className="fixed inset-x-0 bottom-16 border-t bg-white p-4">
+      <div className="fixed inset-x-0 bottom-[3.75rem] z-10 border-t border-rule bg-card">
+        <div className="mx-auto max-w-md p-3">
         <button
           type="button"
           onClick={save}
           disabled={saving || items.length === 0 || !payerId}
-          className="w-full rounded-lg bg-black p-3 text-white disabled:opacity-50"
+          className="min-h-12 w-full rounded-xl bg-ink p-3 text-paper disabled:opacity-40"
         >
           {saving ? 'Saving…' : `Save ${items.length} items`}
         </button>
+        </div>
       </div>
     </main>
   )

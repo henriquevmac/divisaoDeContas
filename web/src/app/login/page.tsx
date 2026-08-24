@@ -29,12 +29,18 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 p-6">
-      <h1 className="text-2xl font-semibold">Divisão de Contas</h1>
+    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-8 p-6">
+      <div>
+        <p className="eyebrow">Divisão de</p>
+        <h1 className="text-4xl font-semibold tracking-tight">Contas</h1>
+        <p className="mt-3 text-sm text-muted">
+          Split a shopping receipt between people.
+        </p>
+      </div>
 
       {status === 'sent' ? (
-        <p className="rounded-lg bg-green-50 p-4 text-green-900">
-          Check {email} for your sign-in link.
+        <p className="rounded-xl border border-rule bg-good-soft p-4 text-good">
+          Sign-in link sent to {email}. Open it on this device.
         </p>
       ) : (
         <form onSubmit={sendLink} className="flex flex-col gap-3">
@@ -46,16 +52,20 @@ export default function LoginPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
-            className="rounded-lg border p-3 text-base"
+            className="min-h-12 rounded-xl border border-rule bg-card p-3 text-base focus:border-ink"
           />
           <button
             type="submit"
             disabled={status === 'sending'}
-            className="rounded-lg bg-black p-3 text-white disabled:opacity-50"
+            className="min-h-12 rounded-xl bg-ink p-3 text-paper disabled:opacity-40"
           >
             {status === 'sending' ? 'Sending…' : 'Send magic link'}
           </button>
-          {status === 'error' && <p className="text-red-700">{message}</p>}
+          {status === 'error' && (
+            <p className="rounded-xl bg-accent-soft p-3 text-sm text-accent">
+              {message}
+            </p>
+          )}
         </form>
       )}
     </main>

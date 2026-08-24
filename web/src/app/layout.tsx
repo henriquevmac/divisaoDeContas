@@ -21,6 +21,11 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // The app is used one-handed on a phone; let the browser chrome tint match.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f5f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f1012" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -29,8 +34,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        {children}
+      <body className="flex min-h-full flex-col">
+        <div className="mx-auto w-full max-w-md flex-1">{children}</div>
         <BottomNav />
       </body>
     </html>

@@ -21,24 +21,34 @@ export function AssignSheet({ people, count, onAssign, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-10 flex flex-col justify-end bg-black/40">
-      <div className="rounded-t-2xl bg-white p-4">
+    <div
+      className="fixed inset-0 z-30 flex flex-col justify-end bg-black/50"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-label={`Assign ${count} items`}
+        onClick={(event) => event.stopPropagation()}
+        className="max-h-[85dvh] overflow-y-auto rounded-t-2xl border-t border-rule bg-card p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+      >
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-rule" />
+
         <h2 className="text-lg font-semibold">
           Assign {count} item{count === 1 ? '' : 's'} to…
         </h2>
 
-        <ul className="my-4 flex flex-col gap-1">
+        <ul className="my-4 flex flex-col">
           {people.map((person) => (
             <li key={person.id}>
-              <label className="flex items-center gap-3 rounded-lg p-3 text-base">
+              <label className="flex min-h-14 items-center gap-3 border-b border-rule text-base">
                 <input
                   type="checkbox"
                   checked={chosen.has(person.id)}
                   onChange={() => toggle(person.id)}
-                  className="size-5"
+                  className="size-5 shrink-0"
                 />
                 {person.name}
-                {person.isOwner && <span className="text-xs text-neutral-500">you</span>}
+                {person.isOwner && <span className="eyebrow">you</span>}
               </label>
             </li>
           ))}
@@ -49,7 +59,7 @@ export function AssignSheet({ people, count, onAssign, onClose }: Props) {
             type="button"
             disabled={chosen.size === 0}
             onClick={() => onAssign([...chosen], 'replace')}
-            className="rounded-lg bg-black p-3 text-white disabled:opacity-50"
+            className="min-h-12 rounded-xl bg-ink p-3 text-paper disabled:opacity-40"
           >
             Assign to exactly these {chosen.size}
           </button>
@@ -57,18 +67,22 @@ export function AssignSheet({ people, count, onAssign, onClose }: Props) {
             type="button"
             disabled={chosen.size === 0}
             onClick={() => onAssign([...chosen], 'add')}
-            className="rounded-lg border p-3 disabled:opacity-50"
+            className="min-h-12 rounded-xl border border-rule p-3 disabled:opacity-40"
           >
             Add them, keep existing
           </button>
           <button
             type="button"
             onClick={() => onAssign([], 'replace')}
-            className="rounded-lg border p-3 text-red-700"
+            className="min-h-12 rounded-xl border border-rule p-3 text-accent"
           >
             Unassign everyone
           </button>
-          <button type="button" onClick={onClose} className="p-3 text-neutral-600">
+          <button
+            type="button"
+            onClick={onClose}
+            className="min-h-12 p-3 text-muted"
+          >
             Cancel
           </button>
         </div>

@@ -45,39 +45,44 @@ export function ReceiptScreen({ receipt, items: wireItems, people }: Props) {
   }
 
   return (
-    <main className="flex flex-col gap-4 p-4 pb-40">
+    <main className="flex flex-col gap-5 p-4 pb-44">
       <header>
-        <h1 className="text-xl font-semibold">
-          {receipt.merchant} {receipt.store && `· ${receipt.store}`}
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {receipt.merchant || 'Untitled'}
+          {receipt.store && <span className="text-muted"> · {receipt.store}</span>}
         </h1>
-        <p className="text-sm text-neutral-600">
-          {receipt.purchasedOn} · {items.length} items · <Money value={net} /> ·
-          paid by {nameOf.get(receipt.payerPersonId) ?? 'unknown'}
+        <p className="mt-1 text-sm text-muted">
+          <span className="font-mono tabular-nums">{receipt.purchasedOn}</span> ·{' '}
+          {items.length} items · <Money value={net} /> · paid by{' '}
+          {nameOf.get(receipt.payerPersonId) ?? 'unknown'}
         </p>
       </header>
 
       {outstanding > 0 ? (
-        <p className="rounded-lg border-2 border-red-500 bg-red-50 p-3 text-red-900">
+        <p className="rounded-xl border border-accent bg-accent-soft p-3 text-sm text-accent">
           {outstanding} item{outstanding === 1 ? '' : 's'} still unassigned. This
           receipt is not complete.
         </p>
       ) : (
-        <p className="rounded-lg bg-green-50 p-3 text-green-900">
+        <p className="rounded-xl bg-good-soft p-3 text-sm text-good">
           Complete — every item has someone assigned.
         </p>
       )}
 
-      <section className="rounded-lg border p-3">
-        <h2 className="mb-2 text-sm font-semibold text-neutral-600">Totals</h2>
+      <section className="rounded-xl border border-rule bg-card p-3.5">
+        <h2 className="mb-1 border-b border-ink pb-1 eyebrow">Totals</h2>
         <ul>
           {[...totals.entries()].map(([personId, total]) => (
-            <li key={personId} className="flex justify-between py-1">
-              <span>{nameOf.get(personId) ?? 'unknown'}</span>
-              <Money value={total} />
+            <li key={personId} className="flex items-center py-1.5">
+              <span className="min-w-0 truncate">
+                {nameOf.get(personId) ?? 'unknown'}
+              </span>
+              <span className="leader" aria-hidden="true" />
+              <Money value={total} className="shrink-0" />
             </li>
           ))}
           {totals.size === 0 && (
-            <li className="text-neutral-500">Nothing assigned yet.</li>
+            <li className="py-1.5 text-sm text-muted">Nothing assigned yet.</li>
           )}
         </ul>
       </section>
@@ -94,22 +99,30 @@ export function ReceiptScreen({ receipt, items: wireItems, people }: Props) {
         }
       />
 
-      <div className="fixed inset-x-0 bottom-16 flex gap-2 border-t bg-white p-4">
-        <button
-          type="button"
-          onClick={() => setSelected(new Set(items.map((item) => item.id)))}
-          className="rounded-lg border px-4 py-3"
-        >
-          All
-        </button>
-        <button
-          type="button"
-          disabled={selected.size === 0 || pending}
-          onClick={() => setSheetOpen(true)}
-          className="flex-1 rounded-lg bg-black p-3 text-white disabled:opacity-50"
-        >
-          {pending ? 'Saving…' : `Assign ${selected.size} selected`}
-        </button>
+      <div className="fixed inset-x-0 bottom-[3.75rem] z-10 border-t border-rule bg-card">
+        <div className="mx-auto flex max-w-md gap-2 p-3">
+          <button
+            type="button"
+            onClick={() =>
+              setSelected(
+                selected.size === items.length
+                  ? new Set()
+                  : new Set(items.map((item) => item.id)),
+              )
+            }
+            className="min-h-12 rounded-xl border border-rule px-4"
+          >
+            {selected.size === items.length ? 'None' : 'All'}
+          </button>
+          <button
+            type="button"
+            disabled={selected.size === 0 || pending}
+            onClick={() => setSheetOpen(true)}
+            className="min-h-12 flex-1 rounded-xl bg-ink p-3 text-paper disabled:opacity-40"
+          >
+            {pending ? 'Saving…' : `Assign ${selected.size} selected`}
+          </button>
+        </div>
       </div>
 
       {sheetOpen && (

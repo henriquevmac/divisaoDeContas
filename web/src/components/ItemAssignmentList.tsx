@@ -50,37 +50,44 @@ export function ItemAssignmentList({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {groupByCategory(items).map(([category, categoryItems]) => (
         <section key={category}>
-          <header className="flex items-center gap-2 border-b py-1">
+          <header className="flex items-center gap-3 border-b border-ink pb-1">
             <input
               type="checkbox"
               aria-label={`Select all in ${category}`}
               checked={categoryItems.every((item) => selected.has(item.id))}
               onChange={() => toggleCategory(categoryItems)}
-              className="size-5"
+              className="size-5 shrink-0"
             />
-            <h2 className="text-sm font-semibold text-neutral-600">{category}</h2>
+            <h2 className="eyebrow">{category}</h2>
+            <span className="eyebrow ml-auto">{categoryItems.length}</span>
           </header>
 
           <ul>
             {categoryItems.map((item) => (
-              <li key={item.id} className="flex items-center gap-3 border-b py-2">
+              <li
+                key={item.id}
+                className="flex items-center gap-3 border-b border-rule py-2.5"
+              >
                 <input
                   type="checkbox"
                   aria-label={`Select ${item.description}`}
                   checked={selected.has(item.id)}
                   onChange={() => toggle(item.id)}
-                  className="size-5"
+                  className="size-5 shrink-0"
                 />
                 <div className="min-w-0 flex-1">
                   <p className="truncate">{item.description}</p>
-                  <p className="text-xs text-neutral-500">
-                    {formatQuantity(item.quantity)}
-                    {item.quantityKind === 'weight' ? ' kg · ' : '× · '}
+                  <p className="mt-0.5 text-xs text-muted">
+                    <span className="font-mono tabular-nums">
+                      {formatQuantity(item.quantity)}
+                      {item.quantityKind === 'weight' ? ' kg' : '×'}
+                    </span>
+                    {' · '}
                     {item.assigneeIds.length === 0 ? (
-                      <span className="font-medium text-red-700">Unassigned</span>
+                      <span className="font-medium text-accent">Unassigned</span>
                     ) : (
                       <span>
                         {item.assigneeIds
@@ -95,12 +102,12 @@ export function ItemAssignmentList({
                   <button
                     type="button"
                     onClick={() => onExplode(item.id)}
-                    className="text-xs text-blue-700 underline"
+                    className="shrink-0 text-xs text-muted underline underline-offset-2"
                   >
                     Explode
                   </button>
                 )}
-                <Money value={item.netAmount} className="text-sm" />
+                <Money value={item.netAmount} className="shrink-0 text-sm" />
               </li>
             ))}
           </ul>

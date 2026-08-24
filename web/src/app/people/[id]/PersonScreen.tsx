@@ -54,89 +54,103 @@ export function PersonScreen({
   }
 
   return (
-    <main className="flex flex-col gap-4 p-4 pb-24">
+    <main className="flex flex-col gap-5 p-4 pb-28">
       <header>
-        <h1 className="text-xl font-semibold">{name}</h1>
-        <p className="text-3xl font-semibold tabular-nums">
+        <h1 className="eyebrow">{name} owes</h1>
+        <p className="mt-1 text-4xl font-semibold tracking-tight">
           <Money
             value={balanceValue}
-            className={balanceValue.isNegative() ? 'text-green-700' : ''}
+            className={balanceValue.isNegative() ? 'text-good' : ''}
           />
         </p>
-        <p className="text-sm text-neutral-600">
+        <p className="mt-1 text-sm text-muted">
           <Money value={new Decimal(shareTotal)} /> in shares less{' '}
           <Money value={new Decimal(settledTotal)} /> settled
           {balanceValue.isNegative() && ' — they are in credit'}
         </p>
       </header>
 
-      <form onSubmit={settle} className="flex flex-col gap-2 rounded-lg border p-3">
-        <h2 className="text-sm font-semibold text-neutral-600">Record a settlement</h2>
+      <form
+        onSubmit={settle}
+        className="flex flex-col gap-2 rounded-xl border border-rule bg-card p-3.5"
+      >
+        <h2 className="eyebrow">Record a settlement</h2>
         <div className="flex gap-2">
           <input
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
             inputMode="decimal"
-            className="w-28 rounded border p-2 text-right text-base tabular-nums"
+            className="min-h-12 w-28 rounded-lg border border-rule bg-paper p-2 text-right font-mono text-base tabular-nums focus:border-ink"
           />
           <input
             value={note}
             onChange={(event) => setNote(event.target.value)}
             placeholder="Note (optional)"
-            className="flex-1 rounded border p-2 text-base"
+            className="min-h-12 flex-1 rounded-lg border border-rule bg-paper p-2 text-base focus:border-ink"
           />
         </div>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-black p-3 text-white disabled:opacity-50"
+          className="min-h-12 rounded-xl bg-ink p-3 text-paper disabled:opacity-40"
         >
           {pending ? 'Recording…' : 'Record'}
         </button>
-        {error && <p className="text-red-700">{error}</p>}
+        {error && <p className="text-sm text-accent">{error}</p>}
       </form>
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-neutral-600">
+        <h2 className="mb-1 border-b border-ink pb-1 eyebrow">
           Settlements ({settlements.length})
         </h2>
         <ul>
           {settlements.map((settlement) => (
-            <li key={settlement.id} className="flex justify-between border-b py-2">
-              <span>
-                {settlement.settledOn}
+            <li
+              key={settlement.id}
+              className="flex items-center border-b border-rule py-2.5 text-sm"
+            >
+              <span className="min-w-0 truncate">
+                <span className="font-mono tabular-nums">{settlement.settledOn}</span>
                 {settlement.note && ` · ${settlement.note}`}
               </span>
-              <Money value={new Decimal(settlement.amount)} />
+              <span className="leader" aria-hidden="true" />
+              <Money value={new Decimal(settlement.amount)} className="shrink-0" />
             </li>
           ))}
           {settlements.length === 0 && (
-            <li className="py-2 text-neutral-500">Nothing settled yet.</li>
+            <li className="py-2.5 text-sm text-muted">Nothing settled yet.</li>
           )}
         </ul>
       </section>
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-neutral-600">
+        <h2 className="mb-1 border-b border-ink pb-1 eyebrow">
           Shares ({shares.length} items)
         </h2>
         <ul>
           {shares.map((share) => (
-            <li key={share.itemId} className="flex items-center gap-2 border-b py-2">
-              <div className="min-w-0 flex-1">
+            <li
+              key={share.itemId}
+              className="flex items-center border-b border-rule py-2.5"
+            >
+              <div className="min-w-0">
                 <p className="truncate">{share.description}</p>
                 <Link
                   href={`/receipts/${share.receiptId}`}
-                  className="text-xs text-neutral-500 underline"
+                  className="text-xs text-muted underline underline-offset-2"
                 >
-                  {share.merchant} · {share.purchasedOn}
+                  {share.merchant} ·{' '}
+                  <span className="font-mono tabular-nums">{share.purchasedOn}</span>
                 </Link>
               </div>
-              <Money value={new Decimal(share.share)} className="text-sm" />
+              <span className="leader" aria-hidden="true" />
+              <Money value={new Decimal(share.share)} className="shrink-0 text-sm" />
             </li>
           ))}
           {shares.length === 0 && (
-            <li className="py-2 text-neutral-500">Nothing assigned to them yet.</li>
+            <li className="py-2.5 text-sm text-muted">
+              Nothing assigned to them yet.
+            </li>
           )}
         </ul>
       </section>
