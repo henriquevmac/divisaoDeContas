@@ -1,10 +1,11 @@
 import { Decimal } from '@/domain/money'
 import { balanceFor } from '@/domain/shares'
 import { listPeople, listSettlements, sharesForPerson } from '@/lib/db/people'
+import { requireUser } from '@/lib/supabase/server'
 import { PeopleScreen, type PersonWithBalance } from './PeopleScreen'
 
 export default async function PeoplePage() {
-  const people = await listPeople()
+  const [user, people] = await Promise.all([requireUser(), listPeople()])
 
   const withBalances: PersonWithBalance[] = await Promise.all(
     people.map(async (person) => {
@@ -29,5 +30,5 @@ export default async function PeoplePage() {
     }),
   )
 
-  return <PeopleScreen people={withBalances} />
+  return <PeopleScreen people={withBalances} signedInAs={user.email} />
 }

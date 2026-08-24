@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { Money } from '@/components/Money'
 import { Decimal } from '@/domain/money'
+import { ConfirmButton } from '@/components/ConfirmButton'
+import { signOutAction } from '@/app/auth/actions'
 import { createPersonAction, deletePersonAction, renamePersonAction } from './actions'
 
 export interface PersonWithBalance {
@@ -14,7 +16,13 @@ export interface PersonWithBalance {
   balance: string
 }
 
-export function PeopleScreen({ people }: { people: PersonWithBalance[] }) {
+export function PeopleScreen({
+  people,
+  signedInAs,
+}: {
+  people: PersonWithBalance[]
+  signedInAs: string
+}) {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [pending, startTransition] = useTransition()
@@ -110,6 +118,21 @@ export function PeopleScreen({ people }: { people: PersonWithBalance[] }) {
       {error && (
         <p className="rounded-xl bg-accent-soft p-3 text-sm text-accent">{error}</p>
       )}
+
+      <section className="mt-4">
+        <h2 className="mb-2 border-b border-ink pb-1 eyebrow">Account</h2>
+        <p className="mb-2 text-xs text-muted">
+          Signed in as {signedInAs}. Signing out sends you back to the magic
+          link, so only do it if you can receive email.
+        </p>
+        <ConfirmButton
+          label="Sign out"
+          confirmLabel="Sign out"
+          pendingLabel="Signing out…"
+          pending={pending}
+          onConfirm={() => startTransition(async () => { await signOutAction() })}
+        />
+      </section>
     </main>
   )
 }

@@ -207,3 +207,17 @@ export async function explodeItem(itemId: string): Promise<void> {
 
   await supabase.from('items').delete().eq('id', itemId)
 }
+
+/**
+ * Deletes a receipt and, by cascade, its items and their assignments.
+ * Settlements are deliberately untouched: they record money that actually
+ * changed hands, so removing a receipt can leave someone in credit rather than
+ * rewriting history (ADR-0003).
+ */
+export async function deleteReceipt(id: string): Promise<void> {
+  await requireUser()
+  const supabase = await createServerSupabase()
+
+  const { error } = await supabase.from('receipts').delete().eq('id', id)
+  if (error) throw new Error(`Could not delete the receipt: ${error.message}`)
+}

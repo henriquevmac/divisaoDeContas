@@ -6,7 +6,8 @@ import { receiptTotals, unassignedItems, type AssignedItem } from '@/domain/shar
 import { ItemAssignmentList } from '@/components/ItemAssignmentList'
 import { AssignSheet } from '@/components/AssignSheet'
 import { Money } from '@/components/Money'
-import { assignAction, explodeItemAction } from './actions'
+import { ConfirmButton } from '@/components/ConfirmButton'
+import { assignAction, deleteReceiptAction, explodeItemAction } from './actions'
 import { itemFromWire, type ItemWire, type ReceiptWire } from '@/lib/db/wire'
 import type { PersonRow } from '@/lib/db/types'
 
@@ -34,6 +35,12 @@ export function ReceiptScreen({ receipt, items: wireItems, people }: Props) {
   const outstanding = unassignedItems(assigned).length
   const net = items.reduce((sum, item) => sum.plus(item.netAmount), new Decimal(0))
   const nameOf = new Map(people.map((person) => [person.id, person.name]))
+
+  function remove() {
+    startTransition(async () => {
+      await deleteReceiptAction(receipt.id)
+    })
+  }
 
   function assign(personIds: string[], mode: 'replace' | 'add') {
     const itemIds = [...selected]
@@ -98,6 +105,22 @@ export function ReceiptScreen({ receipt, items: wireItems, people }: Props) {
           })
         }
       />
+
+      <section className="mt-2">
+        <h2 className="mb-2 border-b border-ink pb-1 eyebrow">Danger zone</h2>
+        <p className="mb-2 text-xs text-muted">
+          Deleting removes this receipt and all {items.length} of its items.
+          Settlements already recorded are kept, so anyone who has paid may end
+          up in credit.
+        </p>
+        <ConfirmButton
+          label="Delete receipt"
+          confirmLabel="Delete permanently"
+          pendingLabel="Deleting…"
+          pending={pending}
+          onConfirm={remove}
+        />
+      </section>
 
       <div className="fixed inset-x-0 bottom-[3.75rem] z-10 border-t border-rule bg-card">
         <div className="mx-auto flex max-w-md gap-2 p-3">
