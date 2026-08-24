@@ -17,12 +17,22 @@ export default function LoginPage() {
     const supabase = createBrowserSupabase()
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // The app is deployed at a public URL, so without this anyone who
+        // finds it could create an account. Existing users only; add new ones
+        // by inviting them from the Supabase dashboard.
+        shouldCreateUser: false,
+      },
     })
 
     if (error) {
       setStatus('error')
-      setMessage(error.message)
+      setMessage(
+        error.status === 422 || /signups? not allowed|user not found/i.test(error.message)
+          ? 'No account for that address.'
+          : error.message,
+      )
       return
     }
     setStatus('sent')
