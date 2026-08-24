@@ -53,41 +53,51 @@ body {
 }
 
 /*
-  The signature: a dotted leader running from a label to its amount, the way a
-  printed receipt aligns a line item with its price. Used only where a name
-  pairs with money — totals, shares, settlements — never as decoration.
+  These MUST stay inside @layer. Unlayered CSS wins over every Tailwind layer,
+  so an unlayered `button { color: inherit }` silently beats `text-paper` and
+  paints the label the same colour as its own background.
 */
-.leader {
-  flex: 1;
-  align-self: center;
-  border-bottom: 1px dotted var(--rule);
-  margin: 0 0.5rem;
-  min-width: 1.5rem;
+@layer base {
+  input,
+  select,
+  button {
+    font: inherit;
+    /* Safe here: @layer base loses to @layer utilities, so text-* still wins. */
+    color: inherit;
+  }
+
+  input[type='checkbox'] {
+    accent-color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 }
 
-/* Category headers speak in the receipt's own voice: caps, tracked, mono. */
-.eyebrow {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
+@layer components {
+  /*
+    The signature: a dotted leader running from a label to its amount, the way
+    a printed receipt aligns a line item with its price. Used only where a name
+    pairs with money — totals, shares, settlements — never as decoration.
+  */
+  .leader {
+    flex: 1;
+    align-self: center;
+    border-bottom: 1px dotted var(--rule);
+    margin: 0 0.5rem;
+    min-width: 1.5rem;
+  }
 
-input,
-select,
-button {
-  font: inherit;
-  color: inherit;
-}
-
-input[type='checkbox'] {
-  accent-color: var(--ink);
-}
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  /* Category headers speak in the receipt's own voice: caps, tracked, mono. */
+  .eyebrow {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

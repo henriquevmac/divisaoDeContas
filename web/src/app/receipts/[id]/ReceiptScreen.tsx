@@ -110,7 +110,7 @@ export function ReceiptScreen({ receipt, items: wireItems, people }: Props) {
                   : new Set(items.map((item) => item.id)),
               )
             }
-            className="min-h-12 rounded-xl border border-rule px-4"
+            className="min-h-12 rounded-xl border border-rule px-4 text-ink"
           >
             {selected.size === items.length ? 'None' : 'All'}
           </button>

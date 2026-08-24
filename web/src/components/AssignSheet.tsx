@@ -67,7 +67,7 @@ export function AssignSheet({ people, count, onAssign, onClose }: Props) {
             type="button"
             disabled={chosen.size === 0}
             onClick={() => onAssign([...chosen], 'add')}
-            className="min-h-12 rounded-xl border border-rule p-3 disabled:opacity-40"
+            className="min-h-12 rounded-xl border border-rule p-3 text-ink disabled:opacity-40"
           >
             Add them, keep existing
           </button>
