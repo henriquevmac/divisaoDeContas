@@ -6,7 +6,7 @@
 
 **Architecture:** All domain logic — CSV parsing, reconciliation, exploding, share and balance arithmetic — lives in `src/domain/` as pure, dependency-free functions covered by Vitest. The Next.js App Router layer is a thin shell that calls those functions and persists results to Supabase Postgres through Server Actions. Parsing runs client-side and produces a draft that only reaches the database when the user confirms verification.
 
-**Tech Stack:** Next.js 15 (App Router, TypeScript), React 19, Tailwind CSS 4, Supabase (Postgres + magic-link auth + RLS), decimal.js, Vitest, Vercel.
+**Tech Stack:** Next.js 16 (App Router, TypeScript), React 19, Tailwind CSS 4, Supabase (Postgres + magic-link auth + RLS), decimal.js, Vitest, Vercel.
 
 **Spec:** [`docs/spec.md`](../../spec.md) — read it, along with [`CONTEXT.md`](../../../CONTEXT.md) for vocabulary and [`docs/adr/`](../../adr/) for decisions already made.
 
@@ -19,6 +19,12 @@
 - **The database is written to only on explicit user confirmation.** Import and parsing never touch it.
 - **No model/LLM API inside the app.** ADR-0001.
 - Node 20+. Package manager: `npm`.
+- **Next.js 16, not 15.** `middleware.ts` is deprecated and renamed to
+  `proxy.ts`, exporting a function named `proxy` rather than `middleware`; with
+  `--src-dir` it belongs at `web/src/proxy.ts`. `params` is a `Promise` and
+  `cookies()` must be awaited, both as this plan already has them. Before
+  writing app-layer code, consult `web/node_modules/next/dist/docs/` rather than
+  relying on Next 15 habits.
 - **Repository layout.** The Next.js app lives in `web/`, not at the repository
   root, because `create-next-app` refuses to scaffold into a non-empty directory
   and the root already holds `CONTEXT.md`, `docs/` and the sample CSV. Every
@@ -1487,7 +1493,7 @@ git commit -m "feat: add initial database schema with row-level security"
 - Create: `src/lib/supabase/server.ts`
 - Create: `src/app/login/page.tsx`
 - Create: `src/app/auth/callback/route.ts`
-- Create: `middleware.ts`
+- Create: `src/proxy.ts`
 - Modify: `src/app/page.tsx`
 - Modify: `src/app/layout.tsx`
 
@@ -1648,15 +1654,16 @@ export async function GET(request: Request) {
 }
 ```
 
-- [ ] **Step 5: Add middleware to refresh the session**
+- [ ] **Step 5: Add a proxy to refresh the session**
 
-Create `web/middleware.ts` (the Next.js app root, alongside `package.json`):
+Next 16 renamed `middleware.ts` to `proxy.ts` and the exported function to
+`proxy`. With `--src-dir`, create `web/src/proxy.ts`:
 
 ```ts
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -1742,7 +1749,7 @@ Insert one row into `people` with your `auth.users` id, your name, and `is_owner
 - [ ] **Step 10: Commit**
 
 ```bash
-git add src/lib/supabase src/app/login src/app/auth middleware.ts src/app/page.tsx src/app/layout.tsx
+git add src/lib/supabase src/app/login src/app/auth src/proxy.ts src/app/page.tsx src/app/layout.tsx
 git commit -m "feat: add Supabase magic-link auth and route protection"
 ```
 
