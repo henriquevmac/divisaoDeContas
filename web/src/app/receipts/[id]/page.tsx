@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getReceipt } from '@/lib/db/receipts'
 import { listPeople } from '@/lib/db/people'
+import { itemToWire, receiptToWire } from '@/lib/db/wire'
 import { ReceiptScreen } from './ReceiptScreen'
 
 export default async function ReceiptPage({
@@ -14,8 +15,8 @@ export default async function ReceiptPage({
 
   return (
     <ReceiptScreen
-      receipt={loaded.receipt}
-      items={loaded.items}
+      receipt={receiptToWire(loaded.receipt)}
+      items={loaded.items.map(itemToWire)}
       people={people}
     />
   )

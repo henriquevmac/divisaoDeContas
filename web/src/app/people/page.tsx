@@ -24,7 +24,7 @@ export default async function PeoplePage() {
 
       return {
         ...person,
-        balance: balanceFor(shareTotal, settledTotal),
+        balance: balanceFor(shareTotal, settledTotal).toString(),
       }
     }),
   )

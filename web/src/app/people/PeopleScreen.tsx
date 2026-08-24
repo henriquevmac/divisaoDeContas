@@ -3,14 +3,15 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { Money } from '@/components/Money'
-import type { Decimal } from '@/domain/money'
+import { Decimal } from '@/domain/money'
 import { createPersonAction, deletePersonAction, renamePersonAction } from './actions'
 
 export interface PersonWithBalance {
   id: string
   name: string
   isOwner: boolean
-  balance: Decimal
+  /** Serialised for the Server → Client boundary; see lib/db/wire.ts. */
+  balance: string
 }
 
 export function PeopleScreen({ people }: { people: PersonWithBalance[] }) {
@@ -36,7 +37,9 @@ export function PeopleScreen({ people }: { people: PersonWithBalance[] }) {
       <h1 className="text-xl font-semibold">People</h1>
 
       <ul className="flex flex-col gap-2">
-        {people.map((person) => (
+        {people.map((person) => {
+          const balance = new Decimal(person.balance)
+          return (
           <li
             key={person.id}
             className="flex items-center gap-3 rounded-lg border p-3"
@@ -63,8 +66,8 @@ export function PeopleScreen({ people }: { people: PersonWithBalance[] }) {
               Open
             </Link>
             <Money
-              value={person.balance}
-              className={person.balance.isNegative() ? 'text-green-700' : ''}
+              value={balance}
+              className={balance.isNegative() ? 'text-green-700' : ''}
             />
             {!person.isOwner && (
               <button
@@ -81,7 +84,8 @@ export function PeopleScreen({ people }: { people: PersonWithBalance[] }) {
               </button>
             )}
           </li>
-        ))}
+          )
+        })}
       </ul>
 
       <form onSubmit={add} className="flex gap-2">

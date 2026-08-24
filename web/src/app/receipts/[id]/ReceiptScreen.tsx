@@ -7,18 +7,22 @@ import { ItemAssignmentList } from '@/components/ItemAssignmentList'
 import { AssignSheet } from '@/components/AssignSheet'
 import { Money } from '@/components/Money'
 import { assignAction, explodeItemAction } from './actions'
-import type { ItemRow, PersonRow, ReceiptRow } from '@/lib/db/types'
+import { itemFromWire, type ItemWire, type ReceiptWire } from '@/lib/db/wire'
+import type { PersonRow } from '@/lib/db/types'
 
 interface Props {
-  receipt: ReceiptRow
-  items: ItemRow[]
+  receipt: ReceiptWire
+  items: ItemWire[]
   people: PersonRow[]
 }
 
-export function ReceiptScreen({ receipt, items, people }: Props) {
+export function ReceiptScreen({ receipt, items: wireItems, people }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [sheetOpen, setSheetOpen] = useState(false)
   const [pending, startTransition] = useTransition()
+
+  // Money arrives as strings across the Server → Client boundary.
+  const items = wireItems.map(itemFromWire)
 
   const assigned: AssignedItem[] = items.map((item) => ({
     id: item.id,
