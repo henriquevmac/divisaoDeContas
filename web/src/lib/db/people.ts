@@ -1,6 +1,7 @@
 import { Decimal } from '@/domain/money'
 import { createServerSupabase, requireUser } from '@/lib/supabase/server'
 import { toDecimal, toNumericString, type PersonRow, type SettlementRow } from './types'
+import { assertUuid } from './ids'
 
 export async function listPeople(): Promise<PersonRow[]> {
   await requireUser()
@@ -80,10 +81,11 @@ export async function listSettlements(personId: string): Promise<SettlementRow[]
   await requireUser()
   const supabase = await createServerSupabase()
 
+  const safeId = assertUuid(personId)
   const { data, error } = await supabase
     .from('settlements')
     .select('id, person_id, paid_to_person_id, amount, settled_on, note')
-    .or(`person_id.eq.${personId},paid_to_person_id.eq.${personId}`)
+    .or(`person_id.eq.${safeId},paid_to_person_id.eq.${safeId}`)
     .order('settled_on', { ascending: false })
 
   if (error) throw new Error(`Could not list settlements: ${error.message}`)
