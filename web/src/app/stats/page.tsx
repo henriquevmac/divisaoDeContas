@@ -3,7 +3,7 @@ import { spendByPerson, toSlices } from '@/domain/stats'
 import { listPeople } from '@/lib/db/people'
 import { allShareEntries } from '@/lib/db/debts'
 import { listReceipts } from '@/lib/db/receipts'
-import { MAX_SERIES } from '@/components/SpendPie'
+import { MAX_SERIES } from '@/components/series-palette'
 import { StatsScreen, type SliceWire } from './StatsScreen'
 
 /**

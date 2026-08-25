@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { Decimal, formatEuro } from '@/domain/money'
 import type { Slice } from '@/domain/stats'
 import { Money } from '@/components/Money'
-import { SpendPie, colourFor } from '@/components/SpendPie'
+import { SpendPie } from '@/components/SpendPie'
+import { colourFor } from '@/components/series-palette'
 
 export interface SliceWire {
   id: string

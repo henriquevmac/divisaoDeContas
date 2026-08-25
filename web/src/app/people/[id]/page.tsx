@@ -36,6 +36,8 @@ export default async function PersonPage({
       sharesLent: breakdown.sharesLent.toString(),
       paid: breakdown.paid.toString(),
       received: breakdown.received.toString(),
+      outstandingOwed: breakdown.outstandingOwed.toString(),
+      outstandingLent: breakdown.outstandingLent.toString(),
       net: breakdown.net.toString(),
     }))
     .sort((a, b) => a.counterpartyName.localeCompare(b.counterpartyName))

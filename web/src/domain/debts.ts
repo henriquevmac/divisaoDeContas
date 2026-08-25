@@ -31,6 +31,14 @@ export interface DebtBreakdown {
   paid: Decimal
   /** Settlements the counterparty handed this person. */
   received: Decimal
+  /**
+   * What this person still owes the counterparty for their own consumption,
+   * after what they have already handed over. Not cancelled against the other
+   * direction.
+   */
+  outstandingOwed: Decimal
+  /** The mirror: what the counterparty still owes this person. */
+  outstandingLent: Decimal
   /** Positive: this person owes. Negative: they are owed. */
   net: Decimal
 }
@@ -43,17 +51,21 @@ function emptyBreakdown(): DebtBreakdown {
     sharesLent: ZERO,
     paid: ZERO,
     received: ZERO,
+    outstandingOwed: ZERO,
+    outstandingLent: ZERO,
     net: ZERO,
   }
 }
 
 function withNet(breakdown: DebtBreakdown): DebtBreakdown {
+  const outstandingOwed = breakdown.sharesOwed.minus(breakdown.paid)
+  const outstandingLent = breakdown.sharesLent.minus(breakdown.received)
+
   return {
     ...breakdown,
-    net: breakdown.sharesOwed
-      .minus(breakdown.sharesLent)
-      .minus(breakdown.paid)
-      .plus(breakdown.received),
+    outstandingOwed,
+    outstandingLent,
+    net: outstandingOwed.minus(outstandingLent),
   }
 }
 

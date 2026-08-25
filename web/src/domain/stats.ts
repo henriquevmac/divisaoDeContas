@@ -32,6 +32,12 @@ export interface Slice extends SliceInput {
  * has a fixed number of hues — a ninth slice is never a generated colour.
  */
 export function toSlices(entries: SliceInput[], maxSlices: number): Slice[] {
+  // A bad cap used to fail silently by folding everyone into "Other", which
+  // reads as a real chart. Refuse it instead.
+  if (!Number.isInteger(maxSlices) || maxSlices < 2) {
+    throw new Error(`toSlices needs a whole cap of 2 or more, got ${maxSlices}`)
+  }
+
   const spending = entries.filter((entry) => entry.amount.greaterThan(0))
   if (spending.length === 0) return []
 

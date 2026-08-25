@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { Decimal } from '@/domain/money'
-import { colourFor, MAX_SERIES } from './SpendPie'
+import { colourFor, MAX_SERIES } from './series-palette'
 import { toSlices } from '@/domain/stats'
 import type { Slice } from '@/domain/stats'
 

@@ -114,5 +114,7 @@ export interface DebtWire {
   sharesLent: string
   paid: string
   received: string
+  outstandingOwed: string
+  outstandingLent: string
   net: string
 }

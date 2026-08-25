@@ -39,8 +39,20 @@ export function PersonScreen({
   settlements,
   nameOf,
 }: Props) {
+  const [mode, setMode] = useState<'net' | 'gross'>('net')
+
   const owes = debts.filter((debt) => !new Decimal(debt.net).isNegative())
   const owed = debts.filter((debt) => new Decimal(debt.net).isNegative())
+
+  // Un-cancelled totals: everything owed out, and everything owed in, kept apart.
+  const grossOut = debts.reduce(
+    (sum, debt) => sum.plus(new Decimal(debt.outstandingOwed)),
+    new Decimal(0),
+  )
+  const grossIn = debts.reduce(
+    (sum, debt) => sum.plus(new Decimal(debt.outstandingLent)),
+    new Decimal(0),
+  )
 
   const [payTo, setPayTo] = useState(owes[0]?.counterpartyId ?? people[0]?.id ?? '')
   const [amount, setAmount] = useState(
@@ -84,24 +96,77 @@ export function PersonScreen({
         </p>
       </header>
 
+      <div className="flex items-center gap-2">
+        <span className="eyebrow">Show</span>
+        <div className="flex rounded-lg border border-rule p-0.5" role="group">
+          {(['net', 'gross'] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setMode(option)}
+              aria-pressed={mode === option}
+              className={`min-h-9 rounded-md px-3 text-sm ${
+                mode === option ? 'bg-ink text-paper' : 'text-muted'
+              }`}
+            >
+              {option === 'net' ? 'Net' : 'Both ways'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {mode === 'gross' && (
+        <section className="rounded-xl border border-rule bg-card p-3.5">
+          <h2 className="mb-2 border-b border-ink pb-1 eyebrow">
+            Un-cancelled totals
+          </h2>
+          <div className="flex items-center py-1">
+            <span>{name} owes, in total</span>
+            <span className="leader" aria-hidden="true" />
+            <Money value={grossOut} />
+          </div>
+          <div className="flex items-center py-1">
+            <span>{name} is owed, in total</span>
+            <span className="leader" aria-hidden="true" />
+            <Money value={grossIn} className="text-good" />
+          </div>
+          <p className="mt-2 text-xs text-muted">
+            These two are not cancelled against each other. Net settles them to
+            one figure per person.
+          </p>
+        </section>
+      )}
+
       <section>
-        <h2 className="mb-1 border-b border-ink pb-1 eyebrow">Owes</h2>
-        {owes.length === 0 && (
-          <p className="py-2.5 text-sm text-muted">Owes nobody anything.</p>
+        <h2 className="mb-1 border-b border-ink pb-1 eyebrow">
+          {mode === 'net' ? 'Owes' : 'Every position'}
+        </h2>
+        {debts.length === 0 && (
+          <p className="py-2.5 text-sm text-muted">Square with everyone.</p>
         )}
         <ul>
-          {owes.map((debt) => (
-            <DebtRow key={debt.counterpartyId} debt={debt} subject={name} />
+          {(mode === 'net' ? owes : debts).map((debt) => (
+            <DebtRow
+              key={debt.counterpartyId}
+              debt={debt}
+              subject={name}
+              mode={mode}
+            />
           ))}
         </ul>
       </section>
 
-      {owed.length > 0 && (
+      {mode === 'net' && owed.length > 0 && (
         <section>
           <h2 className="mb-1 border-b border-ink pb-1 eyebrow">Is owed</h2>
           <ul>
             {owed.map((debt) => (
-              <DebtRow key={debt.counterpartyId} debt={debt} subject={name} />
+              <DebtRow
+                key={debt.counterpartyId}
+                debt={debt}
+                subject={name}
+                mode={mode}
+              />
             ))}
           </ul>
         </section>
@@ -218,9 +283,19 @@ export function PersonScreen({
 }
 
 /** Net figure as the headline, with both gross directions underneath. */
-function DebtRow({ debt, subject }: { debt: DebtWire; subject: string }) {
+function DebtRow({
+  debt,
+  subject,
+  mode,
+}: {
+  debt: DebtWire
+  subject: string
+  mode: 'net' | 'gross'
+}) {
   const [open, setOpen] = useState(false)
   const net = new Decimal(debt.net)
+  const outstandingOwed = new Decimal(debt.outstandingOwed)
+  const outstandingLent = new Decimal(debt.outstandingLent)
   const sharesOwed = new Decimal(debt.sharesOwed)
   const sharesLent = new Decimal(debt.sharesLent)
   const paid = new Decimal(debt.paid)
@@ -236,12 +311,25 @@ function DebtRow({ debt, subject }: { debt: DebtWire; subject: string }) {
       >
         <span className="min-w-0 truncate">{debt.counterpartyName}</span>
         <span className="leader" aria-hidden="true" />
-        <Money
-          value={net.abs()}
-          className={`shrink-0 ${net.isNegative() ? 'text-good' : ''}`}
-        />
+        {mode === 'net' ? (
+          <Money
+            value={net.abs()}
+            className={`shrink-0 ${net.isNegative() ? 'text-good' : ''}`}
+          />
+        ) : (
+          <span className="shrink-0 text-right">
+            <Money value={outstandingOwed} className="block" />
+            <Money value={outstandingLent} className="block text-good" />
+          </span>
+        )}
         <span className="ml-2 shrink-0 text-muted">{open ? '−' : '+'}</span>
       </button>
+
+      {mode === 'gross' && (
+        <p className="eyebrow mt-1">
+          owes {debt.counterpartyName} · is owed by {debt.counterpartyName}
+        </p>
+      )}
 
       {open && (
         <dl className="mt-2 flex flex-col gap-1 border-l border-rule pl-3 text-xs text-muted">

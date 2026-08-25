@@ -89,6 +89,18 @@ describe('toSlices', () => {
     expect(toSlices(withZero, 6).some((slice) => slice.id === 'dan')).toBe(false)
   })
 
+  it('refuses an undefined cap rather than folding everyone into Other', () => {
+    // How the pie broke: MAX_SERIES came from a 'use client' module and
+    // arrived as a proxy, so the cap was undefined and every person folded.
+    expect(() =>
+      toSlices(entries, undefined as unknown as number),
+    ).toThrow(/whole cap/)
+  })
+
+  it('refuses a cap below two', () => {
+    expect(() => toSlices(entries, 1)).toThrow(/whole cap/)
+  })
+
   it('is empty when nothing was spent', () => {
     expect(toSlices([], 6)).toEqual([])
   })

@@ -149,3 +149,43 @@ describe('debtBreakdownFor', () => {
     expect(breakdown.net.toString()).toBe('-30')
   })
 })
+
+describe('the two directions, un-cancelled', () => {
+  it('keeps each direction whole instead of netting them', () => {
+    const shares = [share(ANA, HENRIQUE, '30,00'), share(HENRIQUE, ANA, '20,00')]
+    const breakdown = debtBreakdownFor(ANA, shares, []).get(HENRIQUE)!
+
+    expect(breakdown.outstandingOwed.toString()).toBe('30')
+    expect(breakdown.outstandingLent.toString()).toBe('20')
+    expect(breakdown.net.toString()).toBe('10')
+  })
+
+  it('still lets a settlement reduce the direction it was paid against', () => {
+    const shares = [share(ANA, HENRIQUE, '30,00')]
+    const settlements = [settlement(ANA, HENRIQUE, '12,00')]
+    const breakdown = debtBreakdownFor(ANA, shares, settlements).get(HENRIQUE)!
+
+    expect(breakdown.sharesOwed.toString()).toBe('30')
+    expect(breakdown.outstandingOwed.toString()).toBe('18')
+    expect(breakdown.outstandingLent.toString()).toBe('0')
+  })
+
+  it('reduces the other direction when money comes back', () => {
+    const shares = [share(HENRIQUE, ANA, '40,00')]
+    const settlements = [settlement(HENRIQUE, ANA, '15,00')]
+    const breakdown = debtBreakdownFor(ANA, shares, settlements).get(HENRIQUE)!
+
+    expect(breakdown.outstandingLent.toString()).toBe('25')
+    expect(breakdown.net.toString()).toBe('-25')
+  })
+
+  it('net is always the difference of the two directions', () => {
+    const shares = [share(ANA, HENRIQUE, '30,00'), share(HENRIQUE, ANA, '20,00')]
+    const settlements = [settlement(ANA, HENRIQUE, '5,00')]
+    const breakdown = debtBreakdownFor(ANA, shares, settlements).get(HENRIQUE)!
+
+    expect(
+      breakdown.outstandingOwed.minus(breakdown.outstandingLent).toString(),
+    ).toBe(breakdown.net.toString())
+  })
+})
