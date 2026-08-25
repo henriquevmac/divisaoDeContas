@@ -8,6 +8,7 @@ const HIDDEN_ON = ['/login', '/auth']
 const LINKS = [
   { href: '/', label: 'Receipts' },
   { href: '/people', label: 'People' },
+  { href: '/stats', label: 'Stats' },
   { href: '/import', label: 'Import' },
 ]
 
