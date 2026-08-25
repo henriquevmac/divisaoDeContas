@@ -106,12 +106,30 @@ Assignments is an error to be corrected, never an implicit charge to the Owner.
 _Avoid_: Done, finished, closed
 
 **Settlement**:
-A record that a Person handed over a specific amount on a specific date. It is a
-recorded amount, never a flag, so it stays truthful when Assignments change
-afterwards.
+A record that one Person handed a specific amount to another Person on a
+specific date. It is a recorded amount, never a flag, so it stays truthful when
+Assignments change afterwards.
 _Avoid_: Payment, settling up, reimbursement
 
+**Counterparty**:
+The other Person in a Debt or a Settlement — whoever is owed, or whoever was
+paid.
+_Avoid_: Creditor, debtor, other party
+
+**Debt**:
+What one Person owes their Counterparty, netted across both directions: the
+Shares they ran up on Receipts the Counterparty paid, less the Shares the
+Counterparty ran up on Receipts they paid, less what has already been Settled
+between them. A negative Debt means they are owed rather than owing. Two People
+with a Debt of zero are Square.
+_Avoid_: Owed, IOU
+
 **Balance**:
-What a Person owes the Owner: the sum of their Shares minus the sum of their
-Settlements. A negative Balance means they have overpaid.
-_Avoid_: Debt, owed, total
+A Person's Debt with one particular Counterparty. There is no single figure for
+a Person on their own — what they owe depends on whom you are asking about.
+_Avoid_: Total, running total
+
+**Square**:
+Two People with a Debt of zero between them. Being Square with one Person says
+nothing about any other.
+_Avoid_: Settled (which describes a Settlement, not a state), paid up, even

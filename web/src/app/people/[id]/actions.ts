@@ -5,7 +5,8 @@ import { Decimal, parsePtDecimal, MoneyParseError } from '@/domain/money'
 import { recordSettlement } from '@/lib/db/people'
 
 export async function recordSettlementAction(
-  personId: string,
+  fromPersonId: string,
+  toPersonId: string,
   amount: string,
   settledOn: string,
   note: string,
@@ -19,13 +20,15 @@ export async function recordSettlementAction(
   }
 
   if (parsed.isZero()) return { error: 'A settlement cannot be zero.' }
+  if (!toPersonId) return { error: 'Choose who they paid.' }
 
   try {
-    await recordSettlement(personId, parsed, settledOn, note)
+    await recordSettlement(fromPersonId, toPersonId, parsed, settledOn, note)
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'Could not record it.' }
   }
 
-  revalidatePath(`/people/${personId}`)
+  revalidatePath(`/people/${fromPersonId}`)
+  revalidatePath(`/people/${toPersonId}`)
   revalidatePath('/people')
 }

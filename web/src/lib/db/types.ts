@@ -38,7 +38,10 @@ export interface ItemRow extends DraftItem {
 
 export interface SettlementRow {
   id: string
+  /** Who handed the money over. */
   personId: string
+  /** Who received it. */
+  paidToPersonId: string
   amount: Decimal
   settledOn: string
   note: string

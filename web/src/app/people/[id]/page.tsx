@@ -1,8 +1,12 @@
 import { notFound } from 'next/navigation'
-import { Decimal } from '@/domain/money'
-import { balanceFor } from '@/domain/shares'
-import { listPeople, listSettlements, sharesForPerson } from '@/lib/db/people'
-import { settlementToWire } from '@/lib/db/wire'
+import { debtBreakdownFor } from '@/domain/debts'
+import { listPeople, listSettlements } from '@/lib/db/people'
+import {
+  allShareEntries,
+  allSettlementEntries,
+  assignedItemsFor,
+} from '@/lib/db/debts'
+import { settlementToWire, type DebtWire } from '@/lib/db/wire'
 import { PersonScreen } from './PersonScreen'
 
 export default async function PersonPage({
@@ -11,37 +15,49 @@ export default async function PersonPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [people, shares, settlements] = await Promise.all([
+  const [people, items, settlements, shares, allSettlements] = await Promise.all([
     listPeople(),
-    sharesForPerson(id),
+    assignedItemsFor(id),
     listSettlements(id),
+    allShareEntries(),
+    allSettlementEntries(),
   ])
 
   const person = people.find((candidate) => candidate.id === id)
   if (!person) notFound()
 
-  const shareTotal = shares.reduce((sum, share) => sum.plus(share.share), new Decimal(0))
-  const settledTotal = settlements.reduce(
-    (sum, settlement) => sum.plus(settlement.amount),
-    new Decimal(0),
-  )
+  const nameOf = new Map(people.map((candidate) => [candidate.id, candidate.name]))
+
+  const debts: DebtWire[] = [...debtBreakdownFor(id, shares, allSettlements)]
+    .map(([counterpartyId, breakdown]) => ({
+      counterpartyId,
+      counterpartyName: nameOf.get(counterpartyId) ?? 'unknown',
+      sharesOwed: breakdown.sharesOwed.toString(),
+      sharesLent: breakdown.sharesLent.toString(),
+      paid: breakdown.paid.toString(),
+      received: breakdown.received.toString(),
+      net: breakdown.net.toString(),
+    }))
+    .sort((a, b) => a.counterpartyName.localeCompare(b.counterpartyName))
 
   return (
     <PersonScreen
       personId={person.id}
       name={person.name}
-      shares={shares.map((share) => ({
-        itemId: share.itemId,
-        description: share.description,
-        receiptId: share.receiptId,
-        merchant: share.merchant,
-        purchasedOn: share.purchasedOn,
-        share: share.share.toString(),
+      debts={debts}
+      people={people.filter((candidate) => candidate.id !== id)}
+      items={items.map((item) => ({
+        itemId: item.itemId,
+        description: item.description,
+        receiptId: item.receiptId,
+        merchant: item.merchant,
+        purchasedOn: item.purchasedOn,
+        payerPersonId: item.payerPersonId,
+        payerName: nameOf.get(item.payerPersonId) ?? 'unknown',
+        share: item.share.toString(),
       }))}
       settlements={settlements.map(settlementToWire)}
-      shareTotal={shareTotal.toString()}
-      settledTotal={settledTotal.toString()}
-      balance={balanceFor(shareTotal, settledTotal).toString()}
+      nameOf={Object.fromEntries(nameOf)}
     />
   )
 }

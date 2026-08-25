@@ -79,6 +79,7 @@ export function receiptToWire(receipt: ReceiptRow): ReceiptWire {
 export interface SettlementWire {
   id: string
   personId: string
+  paidToPersonId: string
   amount: string
   settledOn: string
   note: string
@@ -88,6 +89,7 @@ export function settlementToWire(settlement: SettlementRow): SettlementWire {
   return {
     id: settlement.id,
     personId: settlement.personId,
+    paidToPersonId: settlement.paidToPersonId,
     amount: settlement.amount.toString(),
     settledOn: settlement.settledOn,
     note: settlement.note,
@@ -100,5 +102,17 @@ export interface ShareWire {
   receiptId: string
   merchant: string
   purchasedOn: string
+  payerPersonId: string
   share: string
+}
+
+/** One counterparty's position, serialised for the client. */
+export interface DebtWire {
+  counterpartyId: string
+  counterpartyName: string
+  sharesOwed: string
+  sharesLent: string
+  paid: string
+  received: string
+  net: string
 }

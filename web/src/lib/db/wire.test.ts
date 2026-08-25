@@ -57,6 +57,7 @@ describe('wire serialisation', () => {
     const settlement: SettlementRow = {
       id: 's1',
       personId: 'ana',
+      paidToPersonId: 'henrique',
       amount: parsePtDecimal('23,40'),
       settledOn: '2026-08-24',
       note: '',

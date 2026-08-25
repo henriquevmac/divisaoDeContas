@@ -12,8 +12,14 @@ export interface PersonWithBalance {
   id: string
   name: string
   isOwner: boolean
-  /** Serialised for the Server → Client boundary; see lib/db/wire.ts. */
-  balance: string
+  /**
+   * Net position against the Owner, serialised for the Server → Client
+   * boundary. Null for the Owner themselves, who has no position with themselves,
+   * and when no Owner is set.
+   */
+  balance: string | null
+  /** How many people they have an open position with. */
+  counterpartyCount: number
 }
 
 export function PeopleScreen({
@@ -46,7 +52,7 @@ export function PeopleScreen({
 
       <ul className="flex flex-col gap-2">
         {people.map((person) => {
-          const balance = new Decimal(person.balance)
+          const balance = person.balance === null ? null : new Decimal(person.balance)
           return (
           <li
             key={person.id}
@@ -72,12 +78,23 @@ export function PeopleScreen({
             <Link
               href={`/people/${person.id}`}
               aria-label={`Open ${person.name}`}
-              className="shrink-0"
+              className="shrink-0 text-right"
             >
-              <Money
-                value={balance}
-                className={balance.isNegative() ? 'text-good' : ''}
-              />
+              {balance === null || balance.isZero() ? (
+                <span className="text-sm text-muted">
+                  {person.counterpartyCount > 0 ? 'View' : 'Square'}
+                </span>
+              ) : (
+                <>
+                  <Money
+                    value={balance.abs()}
+                    className={balance.isNegative() ? 'text-good' : ''}
+                  />
+                  <span className="block eyebrow">
+                    {balance.isNegative() ? 'you owe' : 'owes you'}
+                  </span>
+                </>
+              )}
             </Link>
             {!person.isOwner && (
               <button

@@ -221,3 +221,35 @@ export async function deleteReceipt(id: string): Promise<void> {
   const { error } = await supabase.from('receipts').delete().eq('id', id)
   if (error) throw new Error(`Could not delete the receipt: ${error.message}`)
 }
+
+export interface ReceiptDetails {
+  merchant: string
+  store: string
+  purchasedOn: string
+  payerPersonId: string
+}
+
+/**
+ * Corrects a saved receipt's details. Changing the Payer re-points every debt
+ * on this receipt at a different person, which is the whole point: the payer is
+ * easy to get wrong at import time and expensive to be stuck with.
+ */
+export async function updateReceipt(
+  id: string,
+  details: ReceiptDetails,
+): Promise<void> {
+  await requireUser()
+  const supabase = await createServerSupabase()
+
+  const { error } = await supabase
+    .from('receipts')
+    .update({
+      merchant: details.merchant.trim(),
+      store: details.store.trim(),
+      purchased_on: details.purchasedOn,
+      payer_person_id: details.payerPersonId,
+    })
+    .eq('id', id)
+
+  if (error) throw new Error(`Could not update the receipt: ${error.message}`)
+}

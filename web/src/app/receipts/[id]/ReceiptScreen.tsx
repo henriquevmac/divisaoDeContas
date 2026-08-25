@@ -7,7 +7,8 @@ import { ItemAssignmentList } from '@/components/ItemAssignmentList'
 import { AssignSheet } from '@/components/AssignSheet'
 import { Money } from '@/components/Money'
 import { ConfirmButton } from '@/components/ConfirmButton'
-import { assignAction, deleteReceiptAction, explodeItemAction } from './actions'
+import { ReceiptDetailsForm } from '@/components/ReceiptDetailsForm'
+import { assignAction, deleteReceiptAction, explodeItemAction, updateReceiptAction } from './actions'
 import { itemFromWire, type ItemWire, type ReceiptWire } from '@/lib/db/wire'
 import type { PersonRow } from '@/lib/db/types'
 
@@ -75,6 +76,12 @@ export function ReceiptScreen({ receipt, items: wireItems, people }: Props) {
           Complete — every item has someone assigned.
         </p>
       )}
+
+      <ReceiptDetailsForm
+        receipt={receipt}
+        people={people}
+        onSave={(details) => updateReceiptAction(receipt.id, details)}
+      />
 
       <section className="rounded-xl border border-rule bg-card p-3.5">
         <h2 className="mb-1 border-b border-ink pb-1 eyebrow">Totals</h2>

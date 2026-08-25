@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { setAssignments, addAssignments } from '@/lib/db/assignments'
-import { deleteReceipt, explodeItem } from '@/lib/db/receipts'
+import { deleteReceipt, explodeItem, updateReceipt } from '@/lib/db/receipts'
 
 export async function assignAction(
   receiptId: string,
@@ -29,4 +29,27 @@ export async function deleteReceiptAction(receiptId: string) {
   revalidatePath('/')
   revalidatePath('/people')
   redirect('/')
+}
+
+export async function updateReceiptAction(
+  receiptId: string,
+  details: {
+    merchant: string
+    store: string
+    purchasedOn: string
+    payerPersonId: string
+  },
+) {
+  if (!details.purchasedOn) return { error: 'A date is required.' }
+  if (!details.payerPersonId) return { error: 'Choose who paid.' }
+
+  try {
+    await updateReceipt(receiptId, details)
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Could not save.' }
+  }
+
+  revalidatePath(`/receipts/${receiptId}`)
+  revalidatePath('/')
+  revalidatePath('/people')
 }
