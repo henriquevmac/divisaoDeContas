@@ -21,7 +21,7 @@
     Categorical series palette, validated with the dataviz skill's checker
     against this app's surfaces: lightness band, chroma floor, CVD separation
     and normal-vision floor all pass in both modes. Assigned in fixed order and
-    never cycled — a seventh series folds into "Other" instead.
+    never cycled — a ninth series folds into "Other" instead.
     Light mode WARNs on contrast for aqua/yellow/magenta, which obliges visible
     labels and a table view; the stats page ships both.
   */
@@ -31,6 +31,8 @@
   --series-4: #eda100;
   --series-5: #e87ba4;
   --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
   --series-other: #8a8a83;
 }
 
@@ -46,13 +48,15 @@
     --good: #4ade80;
     --good-soft: #0f2a1b;
 
-    /* The same six hues re-stepped for the dark surface, not an auto flip. */
+    /* The same eight hues re-stepped for the dark surface, not an auto flip. */
     --series-1: #3987e5;
     --series-2: #d95926;
     --series-3: #199e70;
     --series-4: #c98500;
     --series-5: #d55181;
     --series-6: #008300;
+    --series-7: #9085e9;
+    --series-8: #e66767;
     --series-other: #6f6f69;
   }
 }

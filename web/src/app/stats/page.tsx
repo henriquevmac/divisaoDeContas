@@ -3,10 +3,16 @@ import { spendByPerson, toSlices } from '@/domain/stats'
 import { listPeople } from '@/lib/db/people'
 import { allShareEntries } from '@/lib/db/debts'
 import { listReceipts } from '@/lib/db/receipts'
+import { MAX_SERIES } from '@/components/SpendPie'
 import { StatsScreen, type SliceWire } from './StatsScreen'
 
-/** A pie stays readable at a glance only with a handful of segments. */
-const MAX_SLICES = 6
+/**
+ * The categorical palette has eight validated hues and a ninth is never
+ * generated, so that is the cap. Folding earlier was worse in practice: with
+ * eight people, a six-slice cap put three of them into an "Other" wedge that
+ * outranked every real person.
+ */
+const MAX_SLICES = MAX_SERIES
 
 export default async function StatsPage() {
   const [people, shares, receipts] = await Promise.all([

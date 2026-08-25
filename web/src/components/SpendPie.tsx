@@ -5,6 +5,11 @@ import { Decimal, formatEuro } from '@/domain/money'
 import type { Slice } from '@/domain/stats'
 import { pointOn, wedgePath, PIE_RADIUS, PIE_SIZE } from './pie-geometry'
 
+/**
+ * Fixed order, never cycled. All eight clear the validator's CVD and
+ * normal-vision floors on the adjacent pairlist in both themes — which is the
+ * right list for a pie, whose slices sit next to each other in this order.
+ */
 const SERIES = [
   'var(--series-1)',
   'var(--series-2)',
@@ -12,10 +17,17 @@ const SERIES = [
   'var(--series-4)',
   'var(--series-5)',
   'var(--series-6)',
+  'var(--series-7)',
+  'var(--series-8)',
 ]
 
+export const MAX_SERIES = SERIES.length
+
 export function colourFor(slice: Slice, index: number): string {
-  return slice.id === 'other' ? 'var(--series-other)' : SERIES[index % SERIES.length]
+  if (slice.id === 'other') return 'var(--series-other)'
+  // Past the palette a hue is never generated — toSlices folds the tail first,
+  // so this clamp should be unreachable.
+  return SERIES[Math.min(index, SERIES.length - 1)]
 }
 
 /** Slices below this are too thin to carry a legible label inside the wedge. */
